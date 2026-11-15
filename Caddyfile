@@ -1,0 +1,45 @@
+{
+	auto_https off
+	http_port 80
+	https_port 443
+}
+
+(tls_local) {
+	tls /certs/server.crt /certs/server.key
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Forwarded-Proto https
+		X-Forwarded-Host {host}
+	}
+	encode gzip
+}
+
+buyer.test {
+	import tls_local
+	reverse_proxy buyer:8000
+}
+
+market.test {
+	import tls_local
+	reverse_proxy market:8000
+}
+
+s1.test {
+	import tls_local
+	reverse_proxy s1:8000
+}
+
+s2.test {
+	import tls_local
+	reverse_proxy s2:8000
+}
+
+s3.test {
+	import tls_local
+	reverse_proxy s3:8000
+}
+
+app.test {
+	import tls_local
+	reverse_proxy web:80
+}

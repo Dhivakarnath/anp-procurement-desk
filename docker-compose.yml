@@ -1,0 +1,235 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: desk
+      POSTGRES_PASSWORD: desk
+      POSTGRES_DB: desk
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U desk -d desk"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  caddy:
+    image: caddy:2.9-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      default:
+        aliases:
+          - buyer.test
+          - market.test
+          - s1.test
+          - s2.test
+          - s3.test
+          - app.test
+    depends_on:
+      - buyer
+      - market
+      - s1
+      - s2
+      - s3
+      - web
+
+  buyer:
+    build: ./desk
+    environment: &agent_env
+      DESK_ROLE: buyer
+      PUBLIC_BASE: https://buyer.test
+      AGENT_DID: did:wba:buyer.test:agent
+      KEY_PATH: /keys/buyer/private.pem
+      DID_DOC_PATH: /keys/buyer/did.json
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: postgresql://desk:desk@postgres:5432/buyer
+      MARKET_URL: https://market.test
+      TRUST_PROXY: "1"
+      SSL_CERT_FILE: /certs/ca.crt
+      AWS_REGION: us-east-1
+      # Pass-through from host process environment only — never hard-coded.
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      AWS_DEFAULT_REGION: us-east-1
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./keys/buyer:/keys/buyer:ro
+      - ./certs/ca.crt:/certs/ca.crt:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  market:
+    build: ./desk
+    environment:
+      DESK_ROLE: market
+      PUBLIC_BASE: https://market.test
+      AGENT_DID: did:wba:market.test:agent
+      KEY_PATH: /keys/market/private.pem
+      DID_DOC_PATH: /keys/market/did.json
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: postgresql://desk:desk@postgres:5432/market
+      TRUST_PROXY: "1"
+      SSL_CERT_FILE: /certs/ca.crt
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./keys/market:/keys/market:ro
+      - ./certs/ca.crt:/certs/ca.crt:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  s1:
+    build: ./desk
+    environment:
+      <<: *agent_env
+      DESK_ROLE: s1
+      PUBLIC_BASE: https://s1.test
+      AGENT_DID: did:wba:s1.test:agent
+      KEY_PATH: /keys/s1/private.pem
+      DID_DOC_PATH: /keys/s1/did.json
+      DATABASE_URL: postgresql://desk:desk@postgres:5432/s1
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./keys/s1:/keys/s1:ro
+      - ./certs/ca.crt:/certs/ca.crt:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  s2:
+    build: ./desk
+    environment:
+      <<: *agent_env
+      DESK_ROLE: s2
+      PUBLIC_BASE: https://s2.test
+      AGENT_DID: did:wba:s2.test:agent
+      KEY_PATH: /keys/s2/private.pem
+      DID_DOC_PATH: /keys/s2/did.json
+      DATABASE_URL: postgresql://desk:desk@postgres:5432/s2
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./keys/s2:/keys/s2:ro
+      - ./certs/ca.crt:/certs/ca.crt:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  s3:
+    build: ./desk
+    environment:
+      <<: *agent_env
+      DESK_ROLE: s3
+      PUBLIC_BASE: https://s3.test
+      AGENT_DID: did:wba:s3.test:agent
+      KEY_PATH: /keys/s3/private.pem
+      DID_DOC_PATH: /keys/s3/did.json
+      DATABASE_URL: postgresql://desk:desk@postgres:5432/s3
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./keys/s3:/keys/s3:ro
+      - ./certs/ca.crt:/certs/ca.crt:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      args:
+        VITE_BUYER_URL: http://localhost:8001
+        VITE_MARKET_URL: http://localhost:8002
+        VITE_S1_URL: http://localhost:8003
+        VITE_S2_URL: http://localhost:8004
+        VITE_S3_URL: http://localhost:8005
+        VITE_PROBE_URL: http://127.0.0.1:8010
+    # No keys, no Bedrock, no AWS credentials.
+    ports:
+      - "8080:80"
+    depends_on:
+      - buyer
+      - probe
+
+  # Interop demo. Isolated from the desk: own network, no keys, no credentials, no mounts
+  # from this repository. peer is the ANP team's example agent; probe calls it (or the
+  # public ANP network) with the official SDK.
+  peer:
+    build: ./interop/peer
+    environment:
+      AGENT_DESCRIPTION_JSON_DOMAIN: 172.30.0.10:8000
+    networks:
+      interop:
+        ipv4_address: 172.30.0.10
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    cpus: 0.5
+
+  probe:
+    build: ./interop/probe
+    environment:
+      PEER_HOST: 172.30.0.10
+      WEB_ORIGIN: http://localhost:8080
+    networks:
+      interop:
+        ipv4_address: 172.30.0.11
+    ports:
+      - "127.0.0.1:8010:8000"
+    volumes:
+      - probe_runs:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    cpus: 0.5
+    depends_on:
+      - peer
+
+networks:
+  interop:
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+
+volumes:
+  probe_runs:
+  pgdata:
+  caddy_data:
+  caddy_config:
