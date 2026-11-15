@@ -1,0 +1,124 @@
+{
+  "run_id": "a052e409-4fd2-4fd3-87e5-f6cf0f5dc56d",
+  "target": "peer",
+  "ad_url": "http://172.30.0.10:8000/agents/test/ad.json",
+  "started_at": "2026-11-14T11:18:07.312416Z",
+  "sdk": {
+    "client": "anp 0.4.4",
+    "auth_mode": "legacy_didwba"
+  },
+  "us": {
+    "did": "did:wba:didhost.cc:public",
+    "key_type": "EcdsaSecp256k1VerificationKey2019",
+    "curve": "secp256k1",
+    "verification_method": "did:wba:didhost.cc:public#key-1",
+    "did_url": "https://didhost.cc/public/did.json"
+  },
+  "them": {
+    "name": "Remote Test Agent",
+    "did": "did:wba:didhost.cc:public",
+    "description": "Remote ANP agent for testing agent-to-agent communication",
+    "protocol_version": "1.0.0",
+    "owner": "172.30.0.10:8000",
+    "interfaces": 2
+  },
+  "tools": [
+    {
+      "name": "echo",
+      "description": "Echo a provided message. Dictionary with echo response",
+      "params": [
+        "params"
+      ],
+      "endpoint": "https://172.30.0.10:8000/agents/test/jsonrpc"
+    },
+    {
+      "name": "greet",
+      "description": "Generate personalized greeting with session context. Context is automatically injected by FastANP ba",
+      "params": [
+        "params"
+      ],
+      "endpoint": "https://172.30.0.10:8000/agents/test/jsonrpc"
+    }
+  ],
+  "exchanges": [
+    {
+      "tool": "greet",
+      "request": {
+        "params": {
+          "name": "ANP Procurement Desk"
+        }
+      },
+      "response": {
+        "message": "Hello, ANP Procurement Desk! Welcome to Remote ANP Agent!",
+        "session_id": "3316c87dd859c3b48864a494515df4517e2f0fd2c68101f333d014377bdd13c2",
+        "did": "did:wba:didhost.cc:public",
+        "visit_count": 3,
+        "agent": "remote"
+      }
+    },
+    {
+      "tool": "echo",
+      "request": {
+        "params": {
+          "message": "RFQ-ready: 300 \u00d7 shaft seal 45mm"
+        }
+      },
+      "response": {
+        "originalMessage": "RFQ-ready: 300 \u00d7 shaft seal 45mm",
+        "response": "Echo from remote: RFQ-ready: 300 \u00d7 shaft seal 45mm",
+        "timestamp": "2026-11-14T11:18:08.178238Z"
+      }
+    }
+  ],
+  "proof": {
+    "peer_saw_did": "did:wba:didhost.cc:public",
+    "matches_ours": true
+  },
+  "steps": [
+    {
+      "id": "identity",
+      "title": "Load our ANP identity",
+      "ok": true,
+      "detail": "did:wba:didhost.cc:public (EcdsaSecp256k1VerificationKey2019)",
+      "ms": 0
+    },
+    {
+      "id": "resolve",
+      "title": "Resolve our identity on the public web",
+      "ok": true,
+      "detail": "didhost.cc did not return JSON for the public DID; continuing with the local public demo identity.",
+      "ms": 824
+    },
+    {
+      "id": "discover",
+      "title": "Fetch and parse their agent description",
+      "ok": true,
+      "detail": "Remote Test Agent \u00b7 did:wba:didhost.cc:public",
+      "ms": 5
+    },
+    {
+      "id": "interfaces",
+      "title": "Read their interface documents",
+      "ok": true,
+      "detail": "2 callable interface(s): echo, greet",
+      "ms": 0
+    },
+    {
+      "id": "call:greet",
+      "title": "Call greet (requires DID-WBA login)",
+      "ok": true,
+      "detail": "Peer verified our signature and saw did:wba:didhost.cc:public",
+      "ms": 35
+    },
+    {
+      "id": "call:echo",
+      "title": "Call echo",
+      "ok": true,
+      "detail": "{\"originalMessage\": \"RFQ-ready: 300 \u00d7 shaft seal 45mm\", \"response\": \"Echo from remote: RFQ-ready: 300 \u00d7 shaft seal 45mm\", \"timestamp\": \"2026-11-14T11:18:08.178238Z\"}",
+      "ms": 1
+    }
+  ],
+  "finished_at": "2026-11-14T11:18:08.178510Z",
+  "ok": true,
+  "recorded": true
+}
