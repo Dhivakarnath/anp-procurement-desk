@@ -25,6 +25,7 @@ Professional Medium article + LinkedIn post for the AI FDE demo.
 | `07-seal-board.png` | Shaft seal bargain |
 | `08-injection-guard.png` | Quarantine / injection |
 | `09-bolts30-board.png` | 30-day winner flip |
+| `10-architecture.png` | Architecture diagram (source: `architecture.drawio`) |
 
 ## Alternate Medium headlines (from research)
 

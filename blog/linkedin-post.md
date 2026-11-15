@@ -6,7 +6,11 @@
 
 1. Publish the Medium article first; copy the public URL into the body below.
 2. Paste the post body into LinkedIn (personal profile).
-3. Attach 1–2 images from `assets/` — recommend `03-bolts10-board.png` and `06-live-anp.png`.
+3. Attach a carousel, in this order:
+   - `assets/10-architecture.png` — what the system is
+   - `assets/03-bolts10-board.png` — the bargain, with prices
+   - `assets/08-injection-guard.png` — free text cannot rewrite the quote
+   - `assets/06-live-anp.png` — official ANP proof
 4. Optional hashtags: at most one (`#AIEngineering`) — or none.
 
 **Length target:** ~250 words · quote on line 1 · no emoji spam.
@@ -19,7 +23,9 @@
 
 That idea drove how I built an ANP Procurement Desk — and open-sourced it.
 
-One buyer agent. A marketplace for discovery. Three suppliers — S1, S2, S3. Signed DIDs (Decentralized Identifiers). Code owns every price, date, and rank. Claude Haiku and Amazon Nova only phrase the replies. A person still hits Approve on a locked quote hash.
+ANP (Agent Network Protocol) is an open protocol for agents that do not share a login: identity via DIDs (Decentralized Identifiers), discovery, and signed messages. I used it for cross-company quote-to-order.
+
+One buyer agent. A marketplace for discovery. Three suppliers — S1, S2, S3. Signed DIDs. Code owns every price, date, and rank. Claude Haiku and Amazon Nova, on Bedrock, serve the buyer and the suppliers. Code already owns the price. A person still hits Approve on a locked quote hash.
 
 Bargaining is policy, not vibes. The buyer counters with rival leverage. Suppliers defend private floors — token moves when already leading, harder chase when undercut, expedite premiums when the calendar is tight.
 

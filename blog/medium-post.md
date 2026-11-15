@@ -15,6 +15,8 @@ A real desk needs machine-checkable quotes, rival leverage, private limits, and 
 
 So I built an **ANP Procurement Desk**: one buyer agent, a marketplace, and three supplier agents. They exchange **signed** envelopes. **Code** owns every number. Models (Claude Haiku / Amazon Nova on Bedrock) only **word** the replies.
 
+**ANP (Agent Network Protocol)** is an open protocol for agents that do not share a company login. It gives each agent an identity (a DID, a Decentralized Identifier), a way to be discovered, and signed messages so a quote can be checked instead of trusted as prose. This desk is one professional use of that protocol: cross-company quote-to-order.
+
 This is policy realism in a local Compose demo — not a claim that we already run a live multi-enterprise market.
 
 ![ANP Procurement Desk home — scenario bar, request composer, and empty lanes](./assets/01-desk-home.png)
@@ -48,17 +50,8 @@ That is the layer [Agent Network Protocol (ANP)](https://agent-network-protocol.
 | **S3** | Seal specialist — asks for compound before pricing |
 | **Live ANP tab** | Official [`anp`](https://pypi.org/project/anp/) SDK probe ↔ ANP [Remote Test Agent](https://github.com/agent-network-protocol/anp-agent-example) |
 
-```text
-Person ──confirm──► Buyer ──search──► Marketplace
-                      │
-          signed RFQ  ├──────────────► S1 / S2 / S3
-                      │                 (floors private)
-          counters ◄──┤
-                      ▼
-                 rank on signed fields only
-                      ▼
-                 Person ──Approve──► locked quote hash
-```
+![Architecture of the ANP Procurement Desk](./assets/10-architecture.png)
+*Architecture. The person confirms and approves. The buyer searches the marketplace and bargains with S1–S3 on signed quotes. Redis and Postgres hold nonces and sessions. The buyer and the suppliers both use Amazon Bedrock. The price is already set. The Live ANP probe is isolated: its greet and echo never enter ranking.*
 
 Stack: FastAPI roles, Redis (nonce replay), Postgres, Vite board, Docker Compose, local `*.test` DIDs, Bedrock for wording. Every quote carries a **quote hash**. Signatures are verified before a price can win. Local `*.test` DIDs demonstrate the pattern; they are not a production Web-based DID trust fabric.
 
