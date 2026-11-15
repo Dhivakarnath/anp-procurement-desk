@@ -1,59 +1,56 @@
-# I Built a Multi-Agent Procurement Desk on ANP — With Signed Prices and Private Floors
+# AI Agents Can Bargain. They Should Never Own the Price.
 
-*A buyer agent discovers suppliers, counters on signed numbers, and ranks only what cryptography allows — while models only word the replies.*
-
-**Reading time:** ~7 minutes  
-**Role lens:** AI Forward Deployed Engineer
+*A buyer agent, three suppliers, and a signed quote on Agent Network Protocol. The model speaks. The number stays in code.*
 
 ---
 
-> **In this desk, models write the email. Code owns the price.**
+> **The model speaks the reply. Code owns the price.**
 
-Most multi-agent demos stop when the chat looks clever. Procurement does not work that way.
+A supplier agent put **$2.10** in the message and dressed the rest up as a system instruction. The signed unit price did not move. I took that supplier out of the running. The award went to an agent whose number was actually signed.
 
-A real desk needs machine-checkable quotes, rival leverage, private limits, and a human who still hits Approve. Soft prose cannot own the price.
+If you buy for a company, that is the difference between a conversation and a commitment. If you build agents, that is the difference between a demo that sounds finished and a quote you can audit.
 
-So I built an **ANP Procurement Desk**: one buyer agent, a marketplace, and three supplier agents. They exchange **signed** envelopes. **Code** owns every number. Models (Claude Haiku / Amazon Nova on Bedrock) only **word** the replies.
+I wanted one rule to survive both rooms: a fluent reply cannot rewrite the price.
 
-**ANP (Agent Network Protocol)** is an open protocol for agents that do not share a company login. It gives each agent an identity (a DID, a Decentralized Identifier), a way to be discovered, and signed messages so a quote can be checked instead of trusted as prose. This desk is one professional use of that protocol: cross-company quote-to-order.
+**ANP (Agent Network Protocol)** is an open protocol for agents that do not share a company login. Each agent gets an identity — a DID, a Decentralized Identifier — plus a way to be discovered and a way to sign what it sends. A quote can be checked. It does not have to be trusted because the wording sounds right.
 
-This is policy realism in a local Compose demo — not a claim that we already run a live multi-enterprise market.
+I used that protocol for one job: cross-company quote-to-order. One buyer agent, a marketplace, and three suppliers. They exchange signed envelopes. Code owns every number. Claude Haiku and Amazon Nova, on Amazon Bedrock, only speak the replies. This is a local Compose demo. I am not claiming a live multi-company market.
 
 ![ANP Procurement Desk home — scenario bar, request composer, and empty lanes](./assets/01-desk-home.png)
 *Figure 1. The desk opens like an exchange floor, not a chatbot: pick a scenario, describe a need, watch every party get its own lane.*
 
 ---
 
-## The problem this maps to
+## The gap
 
-B2B RFQs still often die in PDF and inbox lag. Agents make that worse if free text can rewrite the quote.
+B2B RFQs still die in PDFs and late inboxes. Agents make that worse when free text can rewrite the number.
 
-The open gap is not “can an LLM write a polite email?” It is:
+The open question is not “can a model sound convincing?” It is:
 
-- **Who is this counterparty’s agent?** (identity without a shared password vault)
-- **What can it do?** (discoverable interfaces, not hard-coded URLs)
-- **Which numbers are binding?** (signed fields vs free text)
-- **Who may commit the company?** (human authorization before the order binds)
+- **Who is this counterparty’s agent?** Identity, without a shared password vault.
+- **What can it do?** Discoverable interfaces, not hard-coded URLs.
+- **Which numbers are binding?** Signed fields, not free text.
+- **Who may commit the company?** A person, before the order binds.
 
-That is the layer [Agent Network Protocol (ANP)](https://agent-network-protocol.com/) targets: DIDs (Decentralized Identifiers), discovery, signed requests, agent descriptions. This desk explores that lane for quote-to-order.
+That is the layer [Agent Network Protocol (ANP)](https://agent-network-protocol.com/) is aimed at: DIDs (Decentralized Identifiers), discovery, signed requests, agent descriptions. I used it for quote-to-order.
 
 ---
 
-## What we built
+## What I built
 
 | Piece | Role |
 |---|---|
-| **Buyer** | Extracts the request, searches the market, fans out RFQs, bargains, ranks, waits for human approve |
-| **Marketplace** | Catalog search only — discovery, not pricing |
+| **Buyer** | Reads the request, searches the market, fans out RFQs, bargains, ranks, waits for a person to approve |
+| **Marketplace** | Catalog search only. This is the only way suppliers are found. It does not set prices. |
 | **S1** | Contract supplier, short lead, private floors |
 | **S2** | Factory list pricing, can **expedite** for a fee |
-| **S3** | Seal specialist — asks for compound before pricing |
-| **Live ANP tab** | Official [`anp`](https://pypi.org/project/anp/) SDK probe ↔ ANP [Remote Test Agent](https://github.com/agent-network-protocol/anp-agent-example) |
+| **S3** | Seal specialist. Asks for the compound before it prices. |
+| **Live ANP tab** | Official [`anp`](https://pypi.org/project/anp/) SDK probe talking to the ANP [Remote Test Agent](https://github.com/agent-network-protocol/anp-agent-example) |
 
 ![Architecture of the ANP Procurement Desk](./assets/10-architecture.png)
-*Architecture. The person confirms and approves. The buyer searches the marketplace and bargains with S1–S3 on signed quotes. Redis and Postgres hold nonces and sessions. The buyer and the suppliers both use Amazon Bedrock. The price is already set. The Live ANP probe is isolated: its greet and echo never enter ranking.*
+*Architecture. A person confirms and approves. The buyer searches the marketplace, then bargains with the suppliers that search returned. Redis and Postgres hold nonces and sessions. The buyer and the suppliers both call Amazon Bedrock. The price is already set before they speak. The Live ANP probe is separate: its greet and echo never enter ranking.*
 
-Stack: FastAPI roles, Redis (nonce replay), Postgres, Vite board, Docker Compose, local `*.test` DIDs, Bedrock for wording. Every quote carries a **quote hash**. Signatures are verified before a price can win. Local `*.test` DIDs demonstrate the pattern; they are not a production Web-based DID trust fabric.
+Stack: FastAPI roles, Redis for nonce replay, Postgres, a Vite board, Docker Compose, local `*.test` DIDs, Bedrock for the words. Every quote carries a **quote hash**. I verify the signature before a price can win. Local `*.test` DIDs show the pattern. They are not a production DID trust fabric.
 
 ![Confirm step with private target, walk-away, and bargaining rounds](./assets/02-confirm-limits.png)
 *Figure 2. Before anyone is contacted, the person sets the ask and the walk-away. The walk-away is never sent to suppliers.*
@@ -71,142 +68,136 @@ Stack: FastAPI roles, Redis (nonce replay), Postgres, Vite board, Docker Compose
 }
 ```
 
-Free-text `phrasing` can mention dollars only if they already appear in that payload. Anything else is discarded or flagged.
+Free-text wording can mention dollars only if they already appear in that payload. Anything else is discarded or flagged.
 
 ---
 
-## How bargaining actually works
+## How the bargain works
 
-This is not “LLM, please negotiate.”
+This is not “model, please negotiate.”
 
 **Buyer policy**
 
-- Target unit price and walk-away (per run, with sensible defaults)
+- A target unit price and a walk-away, set per run
 - Up to **4** autonomous rounds
-- Counters every live offer still above target
-- Cites the **lowest signed rival** as leverage
-- Stops when best ≤ target, or rounds run out
-- Walk-away excludes quotes from ranking — and is never disclosed
+- A counter on every live offer still above target
+- The **lowest signed rival**, cited as leverage
+- A stop when the best price is at or under target, or the rounds run out
+- The walk-away throws a quote out of ranking, and is never disclosed
 
 **Supplier defense**
 
-- Opens at the best applicable book price (list → contract → volume)
-- Concedes toward a **private floor** (never disclosed)
-- **Token move** when already cheapest (no lower rival cited)
-- Larger concession when undercut
-- **Expedite** when standard lead misses the date (premium, with its own floor)
-- Declares **best and final** when it cannot move further
+- Opens at the best applicable book price: list, then contract, then volume
+- Concedes toward a **private floor** that is never disclosed
+- A **token move** when it is already the cheapest and no lower rival is cited
+- A larger concession when it is undercut
+- **Expedite** when the standard lead misses the date, with its own floor
+- **Best and final** when it cannot move further
 
 **Models**
 
-- Haiku: request extraction + ranking explanation
-- Nova: supplier phrasing (“We can come down from $0.31 to $0.30…”)
+- Haiku reads the request and explains the ranking
+- Nova speaks the supplier reply (“I can come down from $0.31 to $0.30…”)
 
-**Tradeoff we accepted:** an LLM negotiator would be shorter to demo and easier to overfit. A policy engine costs more code, but audit trails and injection resistance come with it.
+I could have let a model negotiate. That demo is shorter, and easier to overfit. A policy engine is more code. I took the extra code because I wanted an audit trail, and because I did not want a poisoned sentence to move the price.
 
 ---
 
-## Scenario 1 — Bolts, 10 days: contract wins the rush
+## Bolts, 10 days: the contract wins the rush
 
 **Ask:** 2,000 stainless hex bolts M8×40 within **10 days**.
 
-S1 opens on **contract** at **$0.31** (5-day lead). S2 can only make the date by **expediting** — opening near **$0.47**. The buyer counters at **$0.27**, citing rivals.
+S1 opens on **contract** at **$0.31**, with a 5-day lead. S2 can only make the date by **expediting**, and opens near **$0.47**. The buyer counters at **$0.27** and cites the rival.
 
 - S1: $0.31 → $0.30 → **$0.29 best and final**
-- S2: $0.47 → **$0.33 best and final** (expedited)
+- S2: $0.47 → **$0.33 best and final**, expedited
 
-**Winner: S1 at $0.29** — about **$40** vs the best opening on this toy catalog run (2,000 × $0.02). Signatures verified on every quote.
+**S1 wins at $0.29.** On this toy catalog that is about **$40** against the best opening (2,000 × $0.02). Every quote was signature-checked.
 
 ![Quote board after bolts 10-day bargaining — S1 leads at $0.29](./assets/03-bolts10-board.png)
-*Figure 3. Opening vs final, price path, expedite badge, verified signatures, and a locked quote hash for Approve.*
+*Figure 3. Opening versus final, the price path, the expedite badge, verified signatures, and a locked quote hash for Approve.*
 
 ![Message lanes showing counters and “Down to $X / best and final”](./assets/05-message-lanes.png)
-*Figure 4. Live bargaining as numbered messages across Buyer, Marketplace, S1, and S2 — not a hidden backend log.*
+*Figure 4. The bargain as numbered messages across Buyer, Marketplace, S1, and S2.*
 
 ---
 
-## Scenario 2 — Bolts, 30 days: patience flips the winner
+## Bolts, 30 days: the calendar flips the winner
 
-Same part. **30 days** need-by. S2 no longer needs expedite. Bargaining becomes a contest with S1’s contract price. S2 walks down to its floor and **wins near $0.28**; S1 holds near **$0.29**.
+Same part. **30 days** to deliver. S2 no longer needs to expedite. It walks down toward its floor and **wins near $0.28**. S1 holds near **$0.29**.
 
 ![Bolts 30-day board — S2 wins when the calendar opens](./assets/09-bolts30-board.png)
-*Figure 5. Same agents, same books — different date constraint, different winner. Policy and data, not prompt luck.*
+*Figure 5. Same agents, same books, different date, different winner.*
 
 ---
 
-## Scenario 3 — Shaft seal: clarify, then defend
+## Shaft seal: name the compound, then defend the price
 
-**Ask:** 300 shaft seals 45mm within 14 days.
+**Ask:** 300 shaft seals, 45mm, within 14 days.
 
-All three ask for **compound**. The buyer answers **FKM** from its **spec sheet**, then bargains. The leader gives ground slowly; the undercut supplier chases harder. In our live runs, **S3** finished near **$3.38** (still above its private floor). A person still **approves** the exact hashed quote.
+All three ask for the **compound**. The buyer answers **FKM** from its spec sheet, then bargains. The leader gives ground slowly. The undercut supplier chases harder. In the runs I kept, **S3** finished near **$3.38**, still above its private floor. A person still approves the exact hashed quote.
 
 ![Shaft seal quote board after multi-round bargaining](./assets/07-seal-board.png)
-*Figure 6. Clarification → priced quotes → multi-round defense → ranked winner.*
+*Figure 6. Clarify, then price, then defend, then rank.*
 
 ---
 
-## Scenario 4 — Prompt injection: quarantine, don’t argue with prose
+## The $2.10 that could not win
 
-We compromise **S3** for a demo run: injected “system” instructions and a fake **$2.10** in free text, while the **signed** unit price stays honest.
+I compromised **S3** for one run. The message carried injected “system” instructions and a fake **$2.10**. The **signed** unit price stayed honest.
 
-The buyer flags instruction-like text and unsigned dollars, **quarantines** S3 (no more counters, not eligible for the award), and ranks **only** on signed fields. Honest suppliers keep bargaining; **S1** wins on signed numbers.
+The buyer flagged the instruction-like text and the unsigned dollars, **quarantined** S3, and stopped bargaining with it. Ranking used signed fields only. The honest suppliers kept going. **S1** won on signed numbers.
 
 ![Prompt injection blocked — S3 quarantined, ranking unchanged by prose](./assets/08-injection-guard.png)
-*Figure 7. Free text is untrusted. The banner shows what was ignored; the board shows who can still win.*
+*Figure 7. Free text is untrusted. The banner shows what was ignored. The board shows who can still win.*
 
-> Agent markets don’t fail on fluency — they fail when free text can rewrite the quote. We rank only what was signed.
+> Agent markets do not fail because a sentence is fluent. They fail when that sentence can rewrite the quote. I rank only what was signed.
 
 ---
 
-## Live ANP: speaking the official protocol
+## Then I asked a harder question
 
-Procurement lanes show the business pattern. The **Live ANP** tab shows protocol literacy.
+The desk shows the business pattern. It does not, by itself, prove I am speaking ANP rather than a private dialect.
 
-An isolated probe uses the official **`anp` SDK** pinned at **0.4.4** to match the Remote Test Agent in this interop path (peer-matched pin — newer PyPI clients are not claimed here) and the public demo identity. It talks to the ANP team’s **Remote Test Agent** ([anp-agent-example](https://github.com/agent-network-protocol/anp-agent-example)) on a private Docker network — no desk keys, no AWS, no shared Redis with procurement.
+So I pointed an isolated probe at the official protocol. It uses the **`anp` SDK**, pinned at **0.4.4** to match the Remote Test Agent on this path. I am not claiming that pin is the newest client on PyPI. The probe talks to the ANP team’s **Remote Test Agent** ([anp-agent-example](https://github.com/agent-network-protocol/anp-agent-example)) on a private Docker network. No desk keys. No AWS. No shared Redis with the procurement run.
 
-Live result: identity loaded → agent description fetched → `greet` / `echo` listed → signed **greet** returned our DID → signed **echo** round-tripped.
+What came back: identity loaded, agent description fetched, `greet` and `echo` listed, a signed **greet** that returned my DID, and a signed **echo** that round-tripped.
 
 ![Live ANP tab — official SDK connection to Remote Test Agent verified](./assets/06-live-anp.png)
-*Figure 8. Separate mode from the desk: Connect → discover → signed call → DID proof. Replies never enter ranking or models.*
+*Figure 8. A separate mode from the desk. Connect, discover, sign a call, check the DID. Those replies never enter ranking or the models.*
 
-We also aimed the probe at public amap on `agent-connect.ai`; that path **timed out** from our network, and `didhost.cc` returned HTML instead of DID JSON during checks. **Client interop against the official example peer is demonstrated; public host health is not.** That is the same class of proof teams use when a SaaS sandbox is flaky: clear the reference agent bar first.
-
----
-
-## What scales (and what this demo does not pretend)
-
-**Scales as a pattern:** DID identity + signed envelopes + nonce replay + quote hashes; marketplace discovery; policy for bargain / floor / expedite / quarantine; LLMs as a swappable presentation layer; human gates at confirm and approve.
-
-**Does not yet prove:** multi-tenant SaaS / SSO; ERP write-back; that every public ANP host is always up; a formal security audit.
-
-We showed the *contract* between agents — not that we already operate a global procurement network.
+I also aimed the probe at public amap on `agent-connect.ai`. That path **timed out** from my network, and `didhost.cc` returned HTML instead of DID JSON. **The client spoke the official example peer. I did not prove that every public host is healthy.**
 
 ---
 
-## Why this matters for FDEs
+## What this pattern can carry
 
-Forward-deployed work is where protocols meet messy reality: contract books, rush fees, missing attributes, adversarial text, flaky public demos.
+**It can carry:** DID identity, signed envelopes, nonce replay, quote hashes, marketplace discovery, policy for the bargain and the floor and the expedite and the quarantine, models as a layer I can swap, and a person at confirm and at approve.
 
-1. **Numbers are owned by code**  
-2. **Trust is owned by signatures**  
-3. **Strategy is owned by policy**  
-4. **Commitment is owned by a human**  
-5. **Interop is owned by speaking the real protocol**
+**It does not yet prove:** multi-tenant SaaS, SSO, an ERP write-back, that every public ANP host stays up, or a formal security audit.
+
+I showed the contract between the agents. I did not show a global procurement network.
 
 ---
 
-## Talk back
+## What I will not hand to a model
 
-**Source:** [github.com/Dhivakarnath/anp-procurement-desk](https://github.com/Dhivakarnath/anp-procurement-desk) — Docker Compose desk + Live ANP probe. Protocol entry points: [ANP docs](https://agent-network-protocol.com/), [specs](https://www.agent-network-protocol.com/specs/), [getting started](https://agent-network-protocol.com/docs/anp-getting-started-guide), and the [example agent](https://github.com/agent-network-protocol/anp-agent-example).
-
-**Comment prompt:** Would you let an LLM *propose* the counter — or only *narrate* a counter that code already computed?
+1. **The number.** Code owns it.
+2. **The trust.** A signature owns it.
+3. **The strategy.** Policy owns it.
+4. **The commitment.** A person owns it.
+5. **The interop.** The real protocol owns it.
 
 ---
 
-### Tags (Medium — pick 5)
+## If you want the desk
+
+**Source:** [github.com/Dhivakarnath/anp-procurement-desk](https://github.com/Dhivakarnath/anp-procurement-desk). Protocol entry points: [ANP docs](https://agent-network-protocol.com/), [specs](https://www.agent-network-protocol.com/specs/), [getting started](https://agent-network-protocol.com/docs/anp-getting-started-guide), and the [example agent](https://github.com/agent-network-protocol/anp-agent-example).
+
+Would you let a model *propose* the counter, or only *say* a counter that code already computed?
+
+---
+
+### Tags
 
 `Agent Network Protocol` · `Multi-Agent Systems` · `AI Engineering` · `Procurement` · `Trustworthy AI`
-
----
-
-*Built as an AI FDE exploration of ANP for cross-company quote-to-order. Demo-grade environment; production hardening and ERP adapters are deliberate next steps — not claimed shipped.*
