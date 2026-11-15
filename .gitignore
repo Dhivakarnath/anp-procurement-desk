@@ -1,0 +1,21 @@
+keys/
+certs/
+**/__pycache__/
+**/*.pyc
+.venv/
+venv/
+.impeccable/
+.cursor/
+web/node_modules/
+web/dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.pem
+*.key
+.pytest_cache/
+.mypy_cache/
+
+# Blog internals (do not publish research scratchpads)
+blog/_*.md
