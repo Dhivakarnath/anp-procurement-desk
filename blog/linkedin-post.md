@@ -19,43 +19,43 @@
 
 ## Post body (copy) — FINAL
 
-"Trust isn't a prompt. It's a signature, a private floor, and a human who still hits Approve."
+"Words can offer a price. Only a signature can bind it."
 
-That idea drove how I built an ANP Procurement Desk — and open-sourced it.
+That is the rule behind the ANP Procurement Desk I built and open-sourced.
 
-ANP (Agent Network Protocol) is an open protocol for agents that do not share a login: identity via DIDs (Decentralized Identifiers), discovery, and signed messages. I used it for cross-company quote-to-order.
+ANP (Agent Network Protocol) is how agents that do not share a login find each other, prove who they are with DIDs (Decentralized Identifiers), and sign what they send. I used it for quote-to-order.
 
-One buyer agent. A marketplace for discovery. Three suppliers — S1, S2, S3. Signed DIDs. Code owns every price, date, and rank. Claude Haiku and Amazon Nova, on Bedrock, serve the buyer and the suppliers. Code already owns the price. A person still hits Approve on a locked quote hash.
+One buyer agent. A marketplace, the only way suppliers are found. Three suppliers: S1, S2, and S3. Code owns every price, date, and rank. Claude Haiku and Amazon Nova, on Amazon Bedrock, speak for the buyer and the suppliers. A person still approves a locked quote hash.
 
-Bargaining is policy, not vibes. The buyer counters with rival leverage. Suppliers defend private floors — token moves when already leading, harder chase when undercut, expedite premiums when the calendar is tight.
+The bargain is policy. The buyer counters with the lowest signed rival. Suppliers defend private floors: a small move when they already lead, a harder chase when they are undercut, an expedite premium when the date is tight.
 
-We ran it live:
+I ran it:
 
-→ Bolts, 10 days: S1 $0.31 → $0.29  
-→ Same bolts, 30 days: S2 wins near $0.28  
-→ Shaft seals: clarify compound, then multi-round defense  
-→ Prompt injection: S3 quarantined — ranking ignores poisoned prose
+→ Bolts, 10 days: S1 from $0.31 to $0.29
+→ Same bolts, 30 days: S2 wins near $0.28
+→ Shaft seals: name the compound, then defend the price
+→ A $2.10 slipped into the message: S3 quarantined. The signed number won.
 
-Then the harder question: can this stack speak real Agent Network Protocol outside our own toys?
+Then I checked whether the stack speaks real Agent Network Protocol, not only my own agents.
 
-On the Live ANP tab, the official anp SDK reached the ANP team's Remote Test Agent — discovery, signed greet/echo, DID proof. A public amap host timed out on our path. We treated that as host health, not protocol failure. Reference peer: green.
+On the Live ANP tab, the official anp SDK reached the ANP team's Remote Test Agent: discovery, a signed greet, an echo, and a DID proof. A public amap host timed out on my path. I treated that as the host, not the protocol. The reference peer was green.
 
-Not a global procurement SaaS claim.  
-A working proof of the rails: identity, signed quotes, policy negotiation, human commit.
+This is not a global procurement product.
+It is the rail underneath one: identity, a signed quote, a policy, and a person who still commits.
 
-Full walkthrough + screenshots:  
+Full walkthrough:
 <PASTE_MEDIUM_URL_HERE>
 
-Code:  
+Code:
 https://github.com/Dhivakarnath/anp-procurement-desk
 
-If you're wiring agent-to-agent commerce: what breaks first — identity, discovery, or the moment free text tries to rewrite the price?
+If you buy through agents, or you build them: what should never be allowed to change the price?
 
 ---
 
 ## Why this quote
 
-Opens on a professional principle that feels inspiring for builders — trust as craft, not vibes — then the build story proves it with receipts. Medium and GitHub sit in the post body so readers can open both without digging into comments.
+An original line, not a borrowed motivational quote. It is short enough for the see-more fold, and the next paragraphs prove it with prices, the quarantine, and the Live ANP result. Quote posts hold up when the line is interpreted and specific, not when it stands alone.
 
 ---
 
